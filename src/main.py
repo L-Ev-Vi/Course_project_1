@@ -1,7 +1,10 @@
 import json
-from views import events
 
-def event_page(date: str, ranges: str = 'M') -> json:
+from services import investment_bank
+from views import web_pages
+
+
+def events(date: str, ranges: str = 'M') -> json:
     """
     Функция принимает два обязательных параметра, дату в формате 'YYYY-MM-DD HH:MM:SS' и диапазон данных.
     По умолчанию диапазон равен одному месяцу (с начала месяца, на который выпадает дата, по саму дату).
@@ -18,13 +21,18 @@ def event_page(date: str, ranges: str = 'M') -> json:
     Курс акции 5-и публичных компаний S&P500. Компании задаются в отдельном файле пользовательских настроек
     'user_settings.json'.
     """
+    return web_pages(date, ranges)
 
-    json_response = events(date, ranges)
-    json_response = json.dumps(json_response, indent=4, ensure_ascii=False)
 
-    return json_response
+def savings(month: str, limit: int) -> json:
+    """
+    Функция принимает на вход месяц в формате 'YYYY-MM', и предел (целое число от 10 до 100 или ровно 1000 ₽),
+    до которого нужно округлять суммы операций.
+    Функция предоставляет JSON-ответ, содержащий данные о сумме, которую удалось бы отложить за месяц в 'Инвесткопилку'.
+    """
+    return investment_bank(month, limit)
 
 
 if __name__ == '__main__':
-
-    print(event_page('2021-02-18 23:55:13'))
+    print(events('2021-02-18 23:55:13'))
+    print(savings('2021-02', 1000))

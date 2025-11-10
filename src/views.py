@@ -1,6 +1,6 @@
 import json
 
-from pandas.core.interchange.dataframe_protocol import DataFrame
+import pandas as pd
 
 from utils import (reading_from_xlsx,
                    for_df_to_list,
@@ -11,12 +11,11 @@ from utils import (reading_from_xlsx,
                    get_list_currency,
                    get_list_stocks,
                    get_exchange_rate,
-                   get_list_stock_prices)
+                   get_list_stock_prices,
+                   get_json)
 
-df = reading_from_xlsx()
 
-
-def events(date: str, ranges: str = 'M', operations: DataFrame = df) -> json:
+def web_pages(date: str, ranges: str = 'M', operations: pd.DataFrame = None) -> json:
     """
     Функция принимает два параметра дату в формате 'YYYY-MM-DD HH:MM:SS' и диапазон данных.
     По умолчанию диапазон равен одному месяцу (с начала месяца, на который выпадает дата, по саму дату).
@@ -33,8 +32,10 @@ def events(date: str, ranges: str = 'M', operations: DataFrame = df) -> json:
     Курс акции 5-и публичных компаний S&P500. Компании задаются в отдельном файле пользовательских настроек
     'user_settings.json'.
     """
+    if operations is None:
+        operations = reading_from_xlsx()
     answer = {}
-    all_operations = for_df_to_list(df)
+    all_operations = for_df_to_list(operations)
     range_operations = data_range(all_operations, date, ranges)
     answer["expenses"] = expenses(range_operations)
     answer["income"] = income(range_operations)
@@ -43,5 +44,6 @@ def events(date: str, ranges: str = 'M', operations: DataFrame = df) -> json:
     stocks = get_list_stocks(user_settings)
     answer["currency_rates"] = get_exchange_rate(currency)
     answer["stock_prices"] = get_list_stock_prices(stocks)
+    json_response = get_json(answer)
 
-    return answer
+    return json_response

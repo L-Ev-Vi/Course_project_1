@@ -18,7 +18,10 @@ from src.utils import (reading_from_xlsx,
                        get_currency_exchange,
                        get_exchange_rate,
                        get_stock_price,
-                       get_list_stock_prices)
+                       get_list_stock_prices,
+                       get_json,
+                       get_billing_month,
+                       get_rounding_difference)
 from tests.conftest import date_data
 
 
@@ -126,12 +129,8 @@ def test_expenses(full_operations):
                 "amount": 20
             },
             {
-                "category": "Обучение",
-                "amount": 10
-            },
-            {
                 "category": "Остальное",
-                "amount": 5
+                "amount": 15
             }
 
         ],
@@ -150,11 +149,11 @@ def test_expenses(full_operations):
 
 def test_expenses_not_transfers_and_cash(operations):
     assert expenses(operations) == {
-        "total_amount": 801,
+        "total_amount": 3511,
         "main": [
             {
                 "category": "Красота",
-                "amount": 316
+                "amount": 3016
             },
             {
                 "category": "Кредит",
@@ -177,12 +176,8 @@ def test_expenses_not_transfers_and_cash(operations):
                 "amount": 20
             },
             {
-                "category": "Обучение",
-                "amount": 10
-            },
-            {
                 "category": "Остальное",
-                "amount": 5
+                "amount": 25
             }
 
         ]
@@ -253,7 +248,7 @@ def test_get_currency_exchange(mock_get):
     }
     assert get_currency_exchange("USD") == {
         "currency": "USD",
-        "rates": 100.0
+        "rates": "100.0 ₽"
     }
     mock_get.assert_called_once_with(url, headers={"apikey": f"{api_key}"}, data={})
 
@@ -285,7 +280,7 @@ def test_get_exchange_rate(mock_exc):
     }
     assert get_exchange_rate(["USD"]) == [{
         "currency": "USD",
-        "rates": 100.0
+        "rates": "100.0 ₽"
     }]
 
 
@@ -329,3 +324,30 @@ def test_get_list_stock_prices(mock_fmp):
     assert get_list_stock_prices(["AAPL"]) == [{
         "stock": "AAPL",
         "price": "200.0 $"}]
+
+
+def test_get_json(file_json):
+    assert get_json(file_json) == json.dumps(file_json, indent=4, ensure_ascii=False)
+
+
+@pytest.mark.parametrize(
+    'date, result', [
+        ('2025-08', [{'Дата операции': (
+                ((datetime.datetime.strptime('31.08.2025 00:00:00', '%d.%m.%Y %H:%M:%S')) - datetime.timedelta(
+                    days=x)).strftime('%d.%m.%Y %H:%M:%S'))} for x in range(31)]),
+        ('2025-02', [{'Дата операции': (
+                ((datetime.datetime.strptime('28.02.2025 00:00:00', '%d.%m.%Y %H:%M:%S')) - datetime.timedelta(
+                    days=x)).strftime('%d.%m.%Y %H:%M:%S'))} for x in range(28)])
+    ]
+)
+def test_get_billing_month(date_data, date, result):
+    assert get_billing_month(date_data, date) == result
+
+@pytest.mark.parametrize(
+    'date, limit, result', [('2018-01', 50, {'01.2018': {"amount_of_savings": 184.0}}),
+                            ('2018-01', 100, {'01.2018': {"amount_of_savings": 84.0}}),
+                            ('2018-01', 1000, {'01.2018': {"amount_of_savings": 984.0}}),
+                            (2018.01, 1000, {})]
+)
+def test_get_rounding_difference(operations, date, limit, result):
+    assert get_rounding_difference(operations, date,limit) == result

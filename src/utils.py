@@ -2,7 +2,10 @@ import datetime
 import json
 import logging
 import os
+import re
 from collections import Counter
+from functools import wraps
+from typing import Any
 
 import pandas as pd
 import requests
@@ -31,7 +34,7 @@ def reading_from_xlsx(path_file: str = "./data/operations.xlsx") -> DataFrame:
 
 def for_df_to_list(df: DataFrame) -> list[dict]:
     """Функция для агрегации и фильтрации данных о банковских операциях. Принимает на вход DataFrame,
-    а возвращает преобразованный список"""
+    а возвращает преобразованный список словарей, содержащий информацию о транзакциях."""
 
     result = []
     try:
@@ -120,8 +123,12 @@ def expenses(operations: list[dict]) -> dict:
 
         top_categories = []
         rest = []
-        for i, category in enumerate(sor_spending_categories):
-            if i < 7:
+        counter = 0
+        for category in sor_spending_categories:
+            if category['Категория'] == "Различные товары":
+                rest.append(category['Сумма'])
+            elif counter < 6:
+                counter += 1
                 top_categories.append({"category": category['Категория'],
                                        "amount": category['Сумма']})
             else:
@@ -208,7 +215,7 @@ def get_currency_exchange(conv_currency: str, base_currency: str = 'RUB') -> dic
         answer = response.json()
         return {
             "currency": conv_currency,
-            "rates": round(answer["rates"].get('RUB'), 2)}
+            "rates": f"{round(answer["rates"].get('RUB'), 2)} ₽"}
 
 
 def get_exchange_rate(list_currencies: list[str]) -> list:
@@ -249,3 +256,76 @@ def get_list_stock_prices(list_stocks: list[str]) -> list:
     for stock_price in list_stocks:
         result.append(get_stock_price(stock_price))
     return result
+
+
+def get_json(result: list | dict) -> json:
+    """Функция принимает данные в виде списка или словаря и возвращает данные в формате json."""
+
+    json_response = json.dumps(result, indent=4, ensure_ascii=False)
+    return json_response
+
+
+def get_billing_month(operations: list[dict], date: str) -> list[dict[str, Any]]:
+    """Функция принимает список транзакций, и дату в формате 'YYYY-MM' по которой происходит сортировка
+    исходного списка. Результатом функции является новый отсортированный список с банковскими операциями совершёнными
+    в указанном месяце """
+
+    new_list = []
+    pattern = re.compile(f'{parser.parse(date).strftime('%m.%Y')}')
+    for operation in operations:
+        str_date = parser.parse(operation["Дата операции"], dayfirst=True).strftime('%d.%m.%Y')
+        if pattern.search(str_date):
+            new_list.append(operation)
+    return new_list
+
+
+def get_rounding_difference(operations: list[dict[str, Any]], date: str, limit: int) -> dict:
+    """Функция принимает список транзакций, и предел, до которого нужно округлять суммы операций (целое число).
+    Функция фильтрует список по статусу операций 'ОК', и рассчитывает остаток округления суммы по каждой
+    успешной операции. Результатом функции является словарь с суммой общего остатка от операций за месяц."""
+
+    amount_of_savings = 0.0
+    try:
+        operations_expenses = [op for op in operations if op['Статус'] == 'OK' if op['Сумма платежа'] < 0]
+        for operation in operations_expenses:
+            if limit < 100:
+                if abs(operation["Сумма платежа"]) > limit:
+                    remains = ((abs(operation["Сумма платежа"]) * 100) % 100) / 100
+                    if (abs(operation["Сумма платежа"]) - remains) % 100 < limit:
+                        rounding_up = limit - (((abs(operation["Сумма платежа"]) - remains) % 100) + remains)
+                        amount_of_savings += rounding_up
+            elif limit == 100:
+                if abs(operation["Сумма платежа"]) > limit:
+                    remains = ((abs(operation["Сумма платежа"]) * 100) % 100) / 100
+                    if (abs(operation["Сумма платежа"]) - remains) % 100 != 0:
+                        rounding_up = limit - (((abs(operation["Сумма платежа"]) - remains) % 100) + remains)
+                        amount_of_savings += rounding_up
+            elif limit == 1000:
+                if abs(operation["Сумма платежа"]) > limit:
+                    remains = ((abs(operation["Сумма платежа"]) * 100) % 100) / 100
+                    if (abs(operation["Сумма платежа"]) - remains) % 1000 != 0:
+                        rounding_up = limit - (((abs(operation["Сумма платежа"]) - remains) % 1000) + remains)
+                        amount_of_savings += rounding_up
+        month = parser.parse(date).strftime('%m.%Y')
+    except Exception as ex:
+        logger.error(ex)
+        return {}
+    else:
+        return {month: {"amount_of_savings": amount_of_savings}}
+
+
+def report(file: str = 'result_report'):
+    def wrapper(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            pass
+
+
+def get_data_for_last_three_months(operations: list[dict], date: str) -> list[dict[str, Any]]:
+    """"""
+
+    pass
+
+
+def get_average_expenses_per_day(operations: list[dict], date: str) -> None:
+    """"""
