@@ -21,7 +21,10 @@ from src.utils import (reading_from_xlsx,
                        get_list_stock_prices,
                        get_json,
                        get_billing_month,
-                       get_rounding_difference)
+                       get_rounding_difference,
+                       report,
+                       get_data_for_last_three_months,
+                       get_average_expenses_per_day)
 from tests.conftest import date_data
 
 
@@ -343,11 +346,44 @@ def test_get_json(file_json):
 def test_get_billing_month(date_data, date, result):
     assert get_billing_month(date_data, date) == result
 
+
 @pytest.mark.parametrize(
     'date, limit, result', [('2018-01', 50, {'01.2018': {"amount_of_savings": 184.0}}),
                             ('2018-01', 100, {'01.2018': {"amount_of_savings": 84.0}}),
-                            ('2018-01', 1000, {'01.2018': {"amount_of_savings": 984.0}}),
-                            (2018.01, 1000, {})]
+                            ('2018-01', 1000, {'01.2018': {"amount_of_savings": 984.0}})
+                            ]
 )
 def test_get_rounding_difference(operations, date, limit, result):
-    assert get_rounding_difference(operations, date,limit) == result
+    assert get_rounding_difference(operations, date, limit) == result
+
+
+def test_get_rounding_difference_not_operation():
+    assert get_rounding_difference([], '2018-01', 500) == {'01.2018': {"amount_of_savings": 0.0}}
+
+
+def test_report():
+    @report()
+    def add(a, b):
+        return a + b
+
+    assert add(2, 2) == 4
+
+
+def test_report_error():
+    @report()
+    def sub(a, b):
+        return a + b
+
+    assert sub('2', 2) == {}
+
+
+def test_get_data_for_last_three_months(operations_in_three_months):
+    assert get_data_for_last_three_months(operations_in_three_months, '2018-03-01') == operations_in_three_months
+
+
+def test_get_data_for_last_three_months_without_date(operations_in_three_months):
+    assert get_data_for_last_three_months(operations_in_three_months) == []
+
+
+# def test_get_average_expenses_per_day():
+#     assert get_average_expenses_per_day([{}], '2021-06-15') == None
