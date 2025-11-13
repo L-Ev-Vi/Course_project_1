@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.utils import (
+from utils import (
     data_range,
     expenses,
     for_df_to_list,

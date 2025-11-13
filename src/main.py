@@ -1,8 +1,8 @@
 import pandas as pd
 
-from src.reports import spending_by_weekday
-from src.services import investment_bank
-from src.views import web_pages
+from reports import spending_by_weekday
+from services import investment_bank
+from views import web_pages
 
 
 def events(date: str, ranges: str = "M", operations: pd.DataFrame = None) -> dict:
@@ -45,8 +45,17 @@ def spending_by_day_the_week(date: str = None, operations: pd.DataFrame = None) 
 
     return spending_by_weekday(date, operations)
 
+# if __name__ == "__main__":
+# print(events("2021-05-18 23:55:13"))
+# print(savings("2021-08", 100))
+# print(spending_by_weekday("2021-02-18"))
 
-if __name__ == "__main__":
-    print(events("2021-05-18 23:55:13"))
-    print(savings("2021-08", 100))
-    print(spending_by_weekday("2021-02-18"))
+
+# print(events("2019-10-05 23:55:13"))
+# print(savings("2021-08", 1000))
+# print(spending_by_weekday())
+
+
+# print(events("2020-02-18 23:55:13"))
+# print(savings("2021-08", 50))
+# print(spending_by_weekday("2018-04-30"))

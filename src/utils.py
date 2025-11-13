@@ -309,7 +309,9 @@ def get_rounding_difference(operations: list[dict[str, Any]], date: str, limit: 
 
 
 def report(file: str = "result_report"):
-    """Декоратор для регистрации выполнения функций"""
+    """Декоратор для регистрации выполнения функций.
+    Формирует отчёт в файле формата .xlsx из данных которые можно преобразовать в DataFrame.
+    Сообщение о результате работы декоратора выводится в файл .txt с тем же названием, что .xlsx файл."""
 
     def wrapper(func):
         @wraps(func)
@@ -317,16 +319,18 @@ def report(file: str = "result_report"):
             log_result = logging.getLogger("log_result")
             log_result.setLevel(logging.INFO)
             log_handler = logging.FileHandler(f"data/{file}.txt", "w", "utf-8")
-            log_format = logging.Formatter("%(message)s")
+            log_format = logging.Formatter("%(asctime)s - %(funcName)s - %(levelname)s - %(message)s")
             log_handler.setFormatter(log_format)
             log_result.addHandler(log_handler)
             try:
                 result = func(*args, **kwargs)
+                df = pd.DataFrame(result)
             except Exception as ex:
-                log_result.error(ex)
+                log_result.error(f"The report has not been generated {ex}")
                 return {}
             else:
-                log_result.info(result)
+                log_result.info(f"The report in the data/{file}.txt file has been successfully generated")
+                df.to_excel(f"data/{file}.xlsx", sheet_name="ОТЧЁТ", index=False)
                 return result
 
         return inner
@@ -355,9 +359,9 @@ def get_data_for_last_three_months(operations: list[dict], date: str = None) -> 
 
 
 @report()
-def get_average_expenses_per_day(operations: list[dict]) -> list[dict[str, Any]]:
-    """Функция принимает список транзакций. Результатом функции является список содержащий словари
-    с указанием дня недели и даты, средними значениями трат за каждый из дней."""
+def get_average_expenses_per_day(operations: list[dict]) -> dict[str, list]:
+    """Функция принимает список транзакций. Результатом функции является словарь содержащий данные
+    с указанием дня недели, даты и средними значениями трат за каждый из дней."""
 
     dates = []
     for op in operations:
@@ -366,17 +370,14 @@ def get_average_expenses_per_day(operations: list[dict]) -> list[dict[str, Any]]
                 continue
             else:
                 dates.append(parser.parse(op["Дата операции"][:11], dayfirst=True).strftime("%d.%m.%Y"))
-    result = []
+    day_week = []
+    average_expenses = []
     for date in dates:
         amount_expenses = []
         for op in operations:
             if parser.parse(op["Дата операции"][:11], dayfirst=True) == parser.parse(date, dayfirst=True):
                 amount_expenses.append(abs(op["Сумма платежа"]))
-        result.append(
-            {
-                "day_week": parser.parse(date, dayfirst=True).strftime("%A %d.%m.%Y"),
-                "average_expenses": round(sum(amount_expenses) / len(amount_expenses), 2),
-            }
-        )
+        day_week.append(parser.parse(date, dayfirst=True).strftime("%A %d.%m.%Y"))
+        average_expenses.append(round(sum(amount_expenses) / len(amount_expenses), 2))
 
-    return result
+    return {"day_week": day_week, "average_expenses": average_expenses}

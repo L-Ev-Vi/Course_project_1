@@ -1,4 +1,4 @@
-from src.utils import for_df_to_list, get_billing_month, get_json, get_rounding_difference, reading_from_xlsx
+from utils import for_df_to_list, get_billing_month, get_json, get_rounding_difference, reading_from_xlsx
 
 
 def investment_bank(month: str, limit: int, transactions: list = None) -> dict:

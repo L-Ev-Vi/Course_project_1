@@ -367,12 +367,20 @@ def test_get_rounding_difference_not_operation():
 def test_report():
     @report()
     def add(a, b):
-        return a + b
+        return {"equation": [f"{a} + {b}"], "result": [a + b]}
 
-    assert add(2, 2) == 4
+    assert add(2, 2) == {"equation": [f"{2} + {2}"], "result": [4]}
 
 
 def test_report_error():
+    @report()
+    def add(a, b):
+        return a + b
+
+    assert add(2, 2) == {}
+
+
+def test_report_error_func():
     @report()
     def sub(a, b):
         return a + b
@@ -389,16 +397,22 @@ def test_get_data_for_last_three_months_without_date(operations_in_three_months)
 
 
 def test_get_average_expenses_per_day(operations_in_three_months):
-    assert get_average_expenses_per_day(operations_in_three_months) == [
-        {"day_week": "Thursday 01.03.2018", "average_expenses": 3016.0},
-        {"day_week": "Sunday 18.02.2018", "average_expenses": 75.0},
-        {"day_week": "Sunday 04.02.2018", "average_expenses": 110.0},
-        {"day_week": "Monday 05.02.2018", "average_expenses": 100.0},
-        {"day_week": "Friday 05.01.2018", "average_expenses": 10.0},
-        {"day_week": "Sunday 07.01.2018", "average_expenses": 5.0},
-        {"day_week": "Monday 01.01.2018", "average_expenses": 10.0},
-    ]
+    assert get_average_expenses_per_day(operations_in_three_months) == {
+        "day_week": [
+            "Thursday 01.03.2018",
+            "Sunday 18.02.2018",
+            "Sunday 04.02.2018",
+            "Saturday 03.02.2018",
+            "Monday 08.01.2018",
+            "Sunday 07.01.2018",
+            "Monday 01.01.2018",
+        ],
+        "average_expenses": [3016.0, 75.0, 110.0, 100.0, 10.0, 5.0, 10.0],
+    }
 
 
 def test_get_average_expenses_per_day_error():
-    assert get_average_expenses_per_day([]) == []
+    assert get_average_expenses_per_day([]) == {
+        "average_expenses": [],
+        "day_week": [],
+    }
