@@ -1,4 +1,4 @@
-import pandas as pd
+from typing import Any
 
 from utils import (
     data_range,
@@ -15,7 +15,7 @@ from utils import (
 )
 
 
-def web_pages(date: str, ranges: str = "M", operations: pd.DataFrame = None) -> dict:
+def web_pages(date: str, ranges: str = "M", operations: Any = None) -> Any:
     """
     Функция принимает три параметра дату в формате 'YYYY-MM-DD HH:MM:SS', диапазон данных и DataFrame с транзакциями.
     По умолчанию диапазон данных равен одному месяцу (с начала месяца, на который выпадает дата, по саму дату).
@@ -42,8 +42,10 @@ def web_pages(date: str, ranges: str = "M", operations: pd.DataFrame = None) -> 
     user_settings = get_custom_settings()
     currency = get_list_currency(user_settings)
     stocks = get_list_stocks(user_settings)
-    answer["currency_rates"] = get_exchange_rate(currency)
-    answer["stock_prices"] = get_list_stock_prices(stocks)
+    currency_rates: Any = get_exchange_rate(currency)
+    answer["currency_rates"] = currency_rates
+    stock_prices: Any = get_list_stock_prices(stocks)
+    answer["stock_prices"] = stock_prices
     json_response = get_json(answer)
 
     return json_response

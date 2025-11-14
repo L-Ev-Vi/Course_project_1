@@ -1,4 +1,4 @@
-import pandas as pd
+from typing import Any
 
 from utils import (
     for_df_to_list,
@@ -9,7 +9,7 @@ from utils import (
 )
 
 
-def spending_by_weekday(date: str = None, operations: pd.DataFrame = None) -> list:
+def spending_by_weekday(date: Any = None, operations: Any = None) -> Any:
     """Функция принимает на вход: DataFrame с транзакциями, опциональную дату, в формате 'YYYY-MM-DD'.
     Если дата не передана, то берется текущая дата.
     Функция возвращает JSON-ответ и формирует отчёт в файле формата .xlsx содержащий данные

@@ -5,7 +5,7 @@ import os
 import re
 from collections import Counter
 from functools import wraps
-from typing import Any
+from typing import Any, Callable
 
 import pandas as pd
 import requests
@@ -99,7 +99,7 @@ def expenses(operations: list[dict]) -> dict:
     и попадают в категорию 'Остальное', и сумма по категориям «Наличные» и «Переводы» отсортированные по убыванию"""
 
     operations_ok = [op for op in operations if op["Статус"] == "OK"]
-    c = Counter()
+    c: Counter = Counter()
     [
         c.update({key: value})
         for key, value in [(op["Категория"], op["Сумма платежа"]) for op in operations_ok if op["Сумма платежа"] < 0]
@@ -158,7 +158,7 @@ def income(operations: list[dict]) -> dict:
     поступлений. Раздел «Основные», в котором поступления по категориям отсортированы по убыванию."""
 
     operations_ok = [op for op in operations if op["Статус"] == "OK"]
-    c = Counter()
+    c: Counter = Counter()
     [
         c.update({key: value})
         for key, value in [(op["Категория"], op["Сумма платежа"]) for op in operations_ok if op["Сумма платежа"] > 0]
@@ -188,19 +188,19 @@ def get_custom_settings(path_file_json: str = "./data/user_settings.json") -> di
     path = os.path.abspath(path_file_json)
     with open(path, "r", encoding="utf-8") as file:
         result = json.load(file)
-    return result
+    return dict(result)
 
 
 def get_list_currency(user_currencies: dict) -> list[str]:
     """Функция принимает словарь с ключом 'user_currencies' и возвращает список пользовательских валют"""
 
-    return user_currencies.get("user_currencies")
+    return list(user_currencies["user_currencies"])
 
 
 def get_list_stocks(user_stocks: dict) -> list[str]:
     """Функция принимает словарь с ключом 'user_stocks' и возвращает список пользовательских акций"""
 
-    return user_stocks.get("user_stocks")
+    return list(user_stocks["user_stocks"])
 
 
 def get_currency_exchange(conv_currency: str, base_currency: str = "RUB") -> dict:
@@ -210,7 +210,7 @@ def get_currency_exchange(conv_currency: str, base_currency: str = "RUB") -> dic
     load_dotenv(".env")
     aip_key = os.getenv("EXC_AIP_KEY")
     url = f"https://api.apilayer.com/exchangerates_data/latest?symbols={base_currency}&base={conv_currency}"
-    payload = {}
+    payload: dict[str, Any] = {}
     headers = {"apikey": f"{aip_key}"}
     response = requests.get(url, headers=headers, data=payload)
     if response.status_code != 200:
@@ -220,7 +220,7 @@ def get_currency_exchange(conv_currency: str, base_currency: str = "RUB") -> dic
         return {"currency": conv_currency, "rates": f"{round(answer["rates"].get('RUB'), 2)} ₽"}
 
 
-def get_exchange_rate(list_currencies: list[str]) -> list:
+def get_exchange_rate(list_currencies: list[str]) -> list[dict[str, str]]:
     """Функция принимает список пользовательских валют, и возвращает список с
     курсом валют ('USD', 'EUR', 'CNY', ...) относительно 'RUB'."""
 
@@ -256,7 +256,7 @@ def get_list_stock_prices(list_stocks: list[str]) -> list:
     return result
 
 
-def get_json(result: list | dict) -> json:
+def get_json(result: list | dict) -> Any:
     """Функция принимает данные в виде списка или словаря и возвращает данные в формате json."""
 
     json_response = json.dumps(result, indent=4, ensure_ascii=False)
@@ -308,14 +308,14 @@ def get_rounding_difference(operations: list[dict[str, Any]], date: str, limit: 
     return {date: {"amount_of_savings": round(amount_of_savings, 2)}}
 
 
-def report(file: str = "result_report"):
+def report(file: str = "result_report") -> Any:
     """Декоратор для регистрации выполнения функций.
     Формирует отчёт в файле формата .xlsx из данных которые можно преобразовать в DataFrame.
     Сообщение о результате работы декоратора выводится в файл .txt с тем же названием, что .xlsx файл."""
 
-    def wrapper(func):
+    def wrapper(func: Callable) -> Any:
         @wraps(func)
-        def inner(*args, **kwargs):
+        def inner(*args: Any, **kwargs: Any) -> Any:
             log_result = logging.getLogger("log_result")
             log_result.setLevel(logging.INFO)
             log_handler = logging.FileHandler(f"data/{file}.txt", "w", "utf-8")
@@ -338,7 +338,7 @@ def report(file: str = "result_report"):
     return wrapper
 
 
-def get_data_for_last_three_months(operations: list[dict], date: str = None) -> list[dict[str, Any]]:
+def get_data_for_last_three_months(operations: list[dict], date: Any = None) -> list[dict[str, Any]]:
     """Функция принимает список транзакций, и дату в формате 'YYYY-MM-DD' от которой происходит выборка данных из
     исходного списка. Если дата не передана, то берется текущая дата.
     Результатом функции является новый отсортированный список с банковскими операциями,

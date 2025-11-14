@@ -1,7 +1,9 @@
+from typing import Any
+
 from utils import for_df_to_list, get_billing_month, get_json, get_rounding_difference, reading_from_xlsx
 
 
-def investment_bank(month: str, limit: int, transactions: list = None) -> dict:
+def investment_bank(month: str, limit: int, transactions: Any = None) -> Any:
     """Функция принимает на вход три аргумента: месяц, для которого рассчитывается отложенная сумма
     (строка в формате 'YYYY-MM'). Список словарей, содержащий информацию о транзакциях,
     в которых содержатся следующие поля:

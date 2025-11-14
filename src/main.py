@@ -1,11 +1,11 @@
-import pandas as pd
+from typing import Any
 
 from reports import spending_by_weekday
 from services import investment_bank
 from views import web_pages
 
 
-def events(date: str, ranges: str = "M", operations: pd.DataFrame = None) -> dict:
+def events(date: str, ranges: str = "M", operations: Any = None) -> Any:
     """
     Функция принимает три параметра дату в формате 'YYYY-MM-DD HH:MM:SS', диапазон данных и DataFrame с транзакциями.
     По умолчанию диапазон данных равен одному месяцу (с начала месяца, на который выпадает дата, по саму дату).
@@ -25,7 +25,7 @@ def events(date: str, ranges: str = "M", operations: pd.DataFrame = None) -> dic
     return web_pages(date, ranges, operations)
 
 
-def savings(month: str, limit: int, transactions: list = None) -> dict:
+def savings(month: str, limit: int, transactions: Any = None) -> Any:
     """
     Функция принимает на вход три аргумента: месяц, для которого рассчитывается отложенная сумма
     (строка в формате 'YYYY-MM'). Список словарей, содержащий информацию о транзакциях,
@@ -38,25 +38,28 @@ def savings(month: str, limit: int, transactions: list = None) -> dict:
     return investment_bank(month, limit, transactions)
 
 
-def spending_by_day_the_week(date: str = None, operations: pd.DataFrame = None) -> list:
+def spending_by_day_the_week(date: Any = None, operations: Any = None) -> Any:
     """Функция принимает на вход: DataFrame с транзакциями, опциональную дату, в формате 'YYYY-MM-DD'.
     Если дата не передана, то берется текущая дата.
     Функция возвращает JSON-ответ и формирует отчёт в файле формата .xlsx содержащий данные
-    с указанием дня недели, даты и средними значениями трат за каждый из дней, за последние три месяца от переданной даты."""
+    с указанием дня недели, даты и средними значениями трат за каждый из дней,
+    за последние три месяца от переданной даты.
+    """
 
     return spending_by_weekday(date, operations)
 
-# if __name__ == "__main__":
-# print(events("2021-05-18 23:55:13"))
-# print(savings("2021-08", 100))
-# print(spending_by_weekday("2021-02-18"))
 
-
-# print(events("2019-10-05 23:55:13"))
-# print(savings("2021-08", 1000))
-# print(spending_by_weekday())
-
-
-# print(events("2020-02-18 23:55:13"))
-# print(savings("2021-08", 50))
-# print(spending_by_weekday("2018-04-30"))
+if __name__ == "__main__":
+    print(events("2021-05-18 23:55:13"))
+    print(savings("2021-08", 100))
+    print(spending_by_weekday("2021-02-18"))
+#
+#
+#     print(events("2019-10-05 23:55:13"))
+#     print(savings("2021-08", 1000))
+#     print(spending_by_weekday())
+#
+#
+#     print(events("2020-02-18 23:55:13"))
+#     print(savings("2021-08", 50))
+#     print(spending_by_weekday("2018-04-30"))
