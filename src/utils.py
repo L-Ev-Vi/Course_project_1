@@ -12,9 +12,10 @@ import requests
 from dateutil import parser, relativedelta
 from dotenv import load_dotenv
 
+os.mkdir("logs")
 logger = logging.getLogger("logger")
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler("logs/x.log", "w", "utf-8")
+handler = logging.FileHandler("logs/error.log", "w", "utf-8")
 formater = logging.Formatter("%(asctime)s - %(funcName)s - %(levelname)s - %(message)s")
 handler.setFormatter(formater)
 logger.addHandler(handler)

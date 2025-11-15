@@ -1,6 +1,6 @@
 from typing import Any
 
-from utils import (
+from src.utils import (
     for_df_to_list,
     get_average_expenses_per_day,
     get_data_for_last_three_months,

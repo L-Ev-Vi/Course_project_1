@@ -1,8 +1,8 @@
 from typing import Any
 
-from reports import spending_by_weekday
-from services import investment_bank
-from views import web_pages
+from src.reports import spending_by_weekday
+from src.services import investment_bank
+from src.views import web_pages
 
 
 def events(date: str, ranges: str = "M", operations: Any = None) -> Any:
@@ -48,11 +48,12 @@ def spending_by_day_the_week(date: Any = None, operations: Any = None) -> Any:
 
     return spending_by_weekday(date, operations)
 
+# Сценарии для запуска проекта
 
-if __name__ == "__main__":
-    print(events("2021-05-18 23:55:13"))
-    print(savings("2021-08", 100))
-    print(spending_by_weekday("2021-02-18"))
+# if __name__ == "__main__":
+#     print(events("2021-05-18 23:55:13"))
+#     print(savings("2021-08", 100))
+#     print(spending_by_weekday("2021-02-18"))
 #
 #
 #     print(events("2019-10-05 23:55:13"))
