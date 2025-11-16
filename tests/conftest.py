@@ -588,3 +588,19 @@ def operations_in_three_months():
             "Сумма операции с округлением": 316.0,
         },
     ]
+
+
+@pytest.fixture
+def get_average_expenses():
+    return {
+        "day_week": [
+            "Thursday 01.03.2018",
+            "Sunday 18.02.2018",
+            "Sunday 04.02.2018",
+            "Saturday 03.02.2018",
+            "Monday 08.01.2018",
+            "Sunday 07.01.2018",
+            "Monday 01.01.2018",
+        ],
+        "average_expenses": [3016.0, 75.0, 110.0, 100.0, 10.0, 5.0, 10.0],
+    }

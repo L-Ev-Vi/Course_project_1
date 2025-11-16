@@ -2,65 +2,47 @@ from typing import Any
 
 from src.reports import spending_by_weekday
 from src.services import investment_bank
+from src.utils import date_determination, for_df_to_list, get_json, reading_date, reading_from_xlsx
 from src.views import web_pages
 
 
-def events(date: str, ranges: str = "M", operations: Any = None) -> Any:
-    """
-    Функция принимает три параметра дату в формате 'YYYY-MM-DD HH:MM:SS', диапазон данных и DataFrame с транзакциями.
-    По умолчанию диапазон данных равен одному месяцу (с начала месяца, на который выпадает дата, по саму дату).
-    Диапазон данных может быть неделя (W), месяц (M), год (Y), на который приходится дата
-    или все данные до указанной даты (ALL).
-    Функция предоставляет JSON-ответ содержащий следующие данные:
-    Общая сумма расходов.
-    Раздел 'Основные', в котором траты по категориям отсортированы по убыванию. Данные предоставляются по 7 категориям
-    с наибольшими тратами, траты по остальным категориям суммируются и попадают в категорию 'Основные'.
-    Раздел «Переводы и наличные», в котором сумма по категориям «Наличные» и «Переводы» отсортирована по убыванию.
-    Общая сумма поступлений.
-    Раздел 'Основные', в котором поступления по категориям отсортированы по убыванию.
-    Курс валют которые задаются в отдельном файле пользовательских настроек 'user_settings.json'
-    Курс акции 5-и публичных компаний S&P500. Компании задаются в отдельном файле пользовательских настроек
-    'user_settings.json'.
-    """
-    return web_pages(date, ranges, operations)
+def main() -> Any:
+    """Функция отвечает за основную логику программы."""
+
+    operations = reading_from_xlsx()
+
+    entering_date = input("Выведите дату для анализа транзакций в формате 'DD.MM.YYYY'" "->")
+    if entering_date:
+        date = reading_date(entering_date)
+    else:
+        date = date_determination()
+
+    range_analysis = input(
+        "Введите диапазон анализа данных: "
+        "неделя (W), "
+        "месяц (M), "
+        "год (Y) "
+        "или все данные до указанной даты (ALL) "
+        "->"
+    )
+    events = web_pages(date, operations, range_analysis)
+    transactions = for_df_to_list(operations)
+
+    set_a_limit = input(
+        "Укажите лимит до которого нужно округлять суммы транзакций "
+        "(укажите целое число от 10 до 100 или ровно 1000 ₽) "
+        "->"
+    )
+    if set_a_limit:
+        limit = int(set_a_limit)
+    else:
+        limit = 0
+    savings = investment_bank(date, transactions, limit)
+    spending_by_day_the_week = spending_by_weekday(operations, date)
+
+    result = get_json({"events": events, "savings": savings, "spending_by_day_the_week": spending_by_day_the_week})
+    return result
 
 
-def savings(month: str, limit: int, transactions: Any = None) -> Any:
-    """
-    Функция принимает на вход три аргумента: месяц, для которого рассчитывается отложенная сумма
-    (строка в формате 'YYYY-MM'). Список словарей, содержащий информацию о транзакциях,
-    в которых содержатся следующие поля:
-    'Дата операции' — дата, когда произошла транзакция (строка в формате 'YYYY-MM-DD');
-    'Сумма операции' — сумма транзакции в оригинальной валюте (число).
-    Третий аргумент это предел, до которого нужно округлять суммы операций (целое число 10, 50 или 100 ₽).
-    Функция предоставляет JSON-ответ, содержащий данные о сумме, которую удалось бы отложить за месяц в Инвесткопилку.
-    """
-    return investment_bank(month, limit, transactions)
-
-
-def spending_by_day_the_week(date: Any = None, operations: Any = None) -> Any:
-    """Функция принимает на вход: DataFrame с транзакциями, опциональную дату, в формате 'YYYY-MM-DD'.
-    Если дата не передана, то берется текущая дата.
-    Функция возвращает JSON-ответ и формирует отчёт в файле формата .xlsx содержащий данные
-    с указанием дня недели, даты и средними значениями трат за каждый из дней,
-    за последние три месяца от переданной даты.
-    """
-
-    return spending_by_weekday(date, operations)
-
-# Сценарии для запуска проекта
-
-# if __name__ == "__main__":
-#     print(events("2021-05-18 23:55:13"))
-#     print(savings("2021-08", 100))
-#     print(spending_by_weekday("2021-02-18"))
-#
-#
-#     print(events("2019-10-05 23:55:13"))
-#     print(savings("2021-08", 1000))
-#     print(spending_by_weekday())
-#
-#
-#     print(events("2020-02-18 23:55:13"))
-#     print(savings("2021-08", 50))
-#     print(spending_by_weekday("2018-04-30"))
+if __name__ == "__main__":
+    print(main())

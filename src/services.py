@@ -1,9 +1,9 @@
 from typing import Any
 
-from src.utils import for_df_to_list, get_billing_month, get_json, get_rounding_difference, reading_from_xlsx
+from src.utils import get_billing_month, get_rounding_difference
 
 
-def investment_bank(month: str, limit: int, transactions: Any = None) -> Any:
+def investment_bank(month: str, transactions: list, limit: int) -> Any:
     """Функция принимает на вход три аргумента: месяц, для которого рассчитывается отложенная сумма
     (строка в формате 'YYYY-MM'). Список словарей, содержащий информацию о транзакциях,
     в которых содержатся следующие поля:
@@ -12,10 +12,8 @@ def investment_bank(month: str, limit: int, transactions: Any = None) -> Any:
     Третий аргумент это предел, до которого нужно округлять суммы операций (целое число 10, 50 или 100 ₽).
     Функция возвращает JSON-ответ с суммой, которую удалось бы отложить в 'Инвесткопилку за указанный месяц'
     """
-    if transactions is None:
-        transactions = for_df_to_list(reading_from_xlsx())
+
     monthly_data = get_billing_month(transactions, month)
     amount_of_savings = get_rounding_difference(monthly_data, month, limit)
-    json_response = get_json(amount_of_savings)
 
-    return json_response
+    return amount_of_savings

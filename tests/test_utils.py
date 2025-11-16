@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from src.utils import (
     data_range,
+    date_determination,
     expenses,
     for_df_to_list,
     get_average_expenses_per_day,
@@ -24,6 +25,8 @@ from src.utils import (
     get_rounding_difference,
     get_stock_price,
     income,
+    output_average_expenses_for_day,
+    reading_date,
     reading_from_xlsx,
     report,
 )
@@ -416,3 +419,23 @@ def test_get_average_expenses_per_day_error():
         "average_expenses": [],
         "day_week": [],
     }
+
+
+def test_output_average_expenses_for_day(get_average_expenses):
+    assert output_average_expenses_for_day(get_average_expenses) == [
+        {"day_week": "Thursday 01.03.2018", "average_expenses": 3016.0},
+        {"day_week": "Sunday 18.02.2018", "average_expenses": 75.0},
+        {"day_week": "Sunday 04.02.2018", "average_expenses": 110.0},
+        {"day_week": "Saturday 03.02.2018", "average_expenses": 100.0},
+        {"day_week": "Monday 08.01.2018", "average_expenses": 10.0},
+        {"day_week": "Sunday 07.01.2018", "average_expenses": 5.0},
+        {"day_week": "Monday 01.01.2018", "average_expenses": 10.0},
+    ]
+
+
+def test_date_determination():
+    assert date_determination() == datetime.datetime.today().strftime("%Y-%m-%d")
+
+
+def test_reading_date():
+    assert reading_date("11.09.2001") == "2001-09-11"

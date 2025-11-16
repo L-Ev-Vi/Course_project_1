@@ -1,21 +1,21 @@
 from typing import Any
 
+import pandas as pd
+
 from src.utils import (
     data_range,
     expenses,
     for_df_to_list,
     get_custom_settings,
     get_exchange_rate,
-    get_json,
     get_list_currency,
     get_list_stock_prices,
     get_list_stocks,
     income,
-    reading_from_xlsx,
 )
 
 
-def web_pages(date: str, ranges: str = "M", operations: Any = None) -> Any:
+def web_pages(date: str, operations: pd.DataFrame, ranges: str = "M") -> Any:
     """
     Функция принимает три параметра дату в формате 'YYYY-MM-DD HH:MM:SS', диапазон данных и DataFrame с транзакциями.
     По умолчанию диапазон данных равен одному месяцу (с начала месяца, на который выпадает дата, по саму дату).
@@ -32,8 +32,7 @@ def web_pages(date: str, ranges: str = "M", operations: Any = None) -> Any:
     Курс акции 5-и публичных компаний S&P500. Компании задаются в отдельном файле пользовательских настроек
     'user_settings.json'.
     """
-    if operations is None:
-        operations = reading_from_xlsx()
+
     answer = {}
     all_operations = for_df_to_list(operations)
     range_operations = data_range(all_operations, date, ranges)
@@ -46,6 +45,5 @@ def web_pages(date: str, ranges: str = "M", operations: Any = None) -> Any:
     answer["currency_rates"] = currency_rates
     stock_prices: Any = get_list_stock_prices(stocks)
     answer["stock_prices"] = stock_prices
-    json_response = get_json(answer)
 
-    return json_response
+    return answer

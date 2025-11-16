@@ -12,7 +12,8 @@ import requests
 from dateutil import parser, relativedelta
 from dotenv import load_dotenv
 
-os.mkdir("logs")
+if not os.path.exists("./logs"):
+    os.mkdir("./logs")
 logger = logging.getLogger("logger")
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler("logs/error.log", "w", "utf-8")
@@ -361,7 +362,7 @@ def get_data_for_last_three_months(operations: list[dict], date: Any = None) -> 
 
 @report()
 def get_average_expenses_per_day(operations: list[dict]) -> dict[str, list]:
-    """Функция принимает список транзакций. Результатом функции является словарь содержащий данные
+    """Функция принимает список транзакций. Результатом функции является словарь в виде DataFrame содержащий данные
     с указанием дня недели, даты и средними значениями трат за каждый из дней."""
 
     dates = []
@@ -382,3 +383,26 @@ def get_average_expenses_per_day(operations: list[dict]) -> dict[str, list]:
         average_expenses.append(round(sum(amount_expenses) / len(amount_expenses), 2))
 
     return {"day_week": day_week, "average_expenses": average_expenses}
+
+
+def output_average_expenses_for_day(expenses_per_day: dict) -> list[dict]:
+    """Функция принимает словарь со средними значениями трат за каждый из дней.
+    Результатом функции является словарь содержащий данные с указанием дня недели,
+    даты и средними значениями трат за каждый из дней."""
+
+    result = []
+    for day_week, average_expenses in zip(expenses_per_day["day_week"], expenses_per_day["average_expenses"]):
+        result.append({"day_week": day_week, "average_expenses": average_expenses})
+    return result
+
+
+def date_determination() -> str:
+    """Функция возвращает строку в виде даты в формате YYYY-MM-DD"""
+    return datetime.datetime.today().strftime("%Y-%m-%d")
+
+
+def reading_date(date_str: str) -> str:
+    """Функция принимает строку в виде даты в формате DD.MM.YYY,
+    и возвращает строку в виде даты в формате YYYY-MM-DD"""
+
+    return parser.parse(date_str, dayfirst=True).strftime("%Y-%m-%d")
