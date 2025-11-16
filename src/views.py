@@ -8,6 +8,7 @@ from src.utils import (
     for_df_to_list,
     get_custom_settings,
     get_exchange_rate,
+    get_json,
     get_list_currency,
     get_list_stock_prices,
     get_list_stocks,
@@ -46,4 +47,4 @@ def web_pages(date: str, operations: pd.DataFrame, ranges: str = "M") -> Any:
     stock_prices: Any = get_list_stock_prices(stocks)
     answer["stock_prices"] = stock_prices
 
-    return answer
+    return get_json(answer)

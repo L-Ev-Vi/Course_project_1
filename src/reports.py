@@ -6,6 +6,7 @@ from src.utils import (
     for_df_to_list,
     get_average_expenses_per_day,
     get_data_for_last_three_months,
+    get_json,
     output_average_expenses_for_day,
 )
 
@@ -22,4 +23,4 @@ def spending_by_weekday(operations: pd.DataFrame, date: Any = None) -> Any:
     average_spending_per_day = get_average_expenses_per_day(three_month_transactions)
     result = output_average_expenses_for_day(average_spending_per_day)
 
-    return result
+    return get_json(result)

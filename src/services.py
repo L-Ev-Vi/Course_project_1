@@ -1,6 +1,6 @@
 from typing import Any
 
-from src.utils import get_billing_month, get_rounding_difference
+from src.utils import get_billing_month, get_json, get_rounding_difference
 
 
 def investment_bank(month: str, transactions: list, limit: int) -> Any:
@@ -16,4 +16,4 @@ def investment_bank(month: str, transactions: list, limit: int) -> Any:
     monthly_data = get_billing_month(transactions, month)
     amount_of_savings = get_rounding_difference(monthly_data, month, limit)
 
-    return amount_of_savings
+    return get_json(amount_of_savings)

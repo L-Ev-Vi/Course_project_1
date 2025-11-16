@@ -331,7 +331,7 @@ def report(file: str = "result_report") -> Any:
                 log_result.error(f"The report has not been generated {ex}")
                 return {}
             else:
-                log_result.info(f"The report in the data/{file}.txt file has been successfully generated")
+                log_result.info(f"The report in the data/{file}.xlsx file has been successfully generated")
                 df.to_excel(f"data/{file}.xlsx", sheet_name="ОТЧЁТ", index=False)
                 return result
 
@@ -402,7 +402,14 @@ def date_determination() -> str:
 
 
 def reading_date(date_str: str) -> str:
-    """Функция принимает строку в виде даты в формате DD.MM.YYY,
+    """Функция принимает строку в виде даты в формате DD.MM.YYYY,
     и возвращает строку в виде даты в формате YYYY-MM-DD"""
 
     return parser.parse(date_str, dayfirst=True).strftime("%Y-%m-%d")
+
+
+def get_month(date_str: str) -> str:
+    """Функция принимает строку в виде даты в формате MM.YYYY,
+    и возвращает строку в виде даты в формате YYYY-MM-DD"""
+
+    return datetime.datetime.strptime(date_str, "%m.%Y").strftime("%Y-%m-%d")

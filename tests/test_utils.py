@@ -22,6 +22,7 @@ from src.utils import (
     get_list_currency,
     get_list_stock_prices,
     get_list_stocks,
+    get_month,
     get_rounding_difference,
     get_stock_price,
     income,
@@ -439,3 +440,7 @@ def test_date_determination():
 
 def test_reading_date():
     assert reading_date("11.09.2001") == "2001-09-11"
+
+
+def test_get_month():
+    assert get_month("02.2020") == "2020-02-01"
