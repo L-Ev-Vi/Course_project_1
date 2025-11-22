@@ -1,0 +1,19 @@
+from typing import Any
+
+from src.utils import get_billing_month, get_json, get_rounding_difference
+
+
+def investment_bank(month: str, transactions: list, limit: int) -> Any:
+    """Функция принимает на вход три аргумента: месяц, для которого рассчитывается отложенная сумма
+    (строка в формате 'YYYY-MM'). Список словарей, содержащий информацию о транзакциях,
+    в которых содержатся следующие поля:
+    'Дата операции' — дата, когда произошла транзакция (строка в формате 'YYYY-MM-DD');
+    'Сумма операции' — сумма транзакции в оригинальной валюте (число).
+    Третий аргумент это предел, до которого нужно округлять суммы операций (целое число 10, 50 или 100 ₽).
+    Функция возвращает JSON-ответ с суммой, которую удалось бы отложить в 'Инвесткопилку за указанный месяц'
+    """
+
+    monthly_data = get_billing_month(transactions, month)
+    amount_of_savings = get_rounding_difference(monthly_data, month, limit)
+
+    return get_json(amount_of_savings)
