@@ -70,8 +70,8 @@ user_settings.json
 ### Установка
 Чтобы работать с проекта необходимо:
 1. Загрузить проект в IDE через инструмент *'clone repository'* или команду `git clon`
-   используя ключь: 
-    - SSH: `git@github.com:L-Ev-Vi/Course_project_1.git`
+   используя ключ: 
+    - GitHub CLI: `gh repo clone L-Ev-Vi/Course_project_1` для работы из командной строки ОС;
     - или HTTPS: `https://github.com/L-Ev-Vi/Course_project_1.git`;
 2. Установить зависимости проекта, выполнив команду `poetry install`;
 3. В некоторых случаях может не корректно устанавливаться пакет `dateutil`, в этом случае можно установить пакет в ручную:
